@@ -10,6 +10,11 @@ PADDLE_SPEED = 200
 
 push = require("push")
 
+Class = require("class")
+
+require("Paddle")
+require("Ball")
+
 function love.load()
 	love.graphics.setDefaultFilter("nearest", "nearest")
 
@@ -25,18 +30,10 @@ function love.load()
 		p2 = 0,
 	}
 
-	ball = {
-		x = VIRTUAL_WIDTH / 2 - 2,
-		y = VIRTUAL_HEIGHT / 2 - 2,
-	}
+	ball = Ball(VIRTUAL_WIDTH / 2 - 2, VIRTUAL_HEIGHT / 2 - 2, 5, 5)
 
-	BALL_DX = math.random(2) == 1 and 100 or -100
-	BALL_DY = math.random(-50, 50)
-
-	paddle = {
-		left = 10,
-		right = VIRTUAL_HEIGHT - 30,
-	}
+	leftPaddle = Paddle(10, 30, 5, 20)
+	rightPaddle = Paddle(VIRTUAL_WIDTH - 10, VIRTUAL_HEIGHT - 30, 5, 20)
 
 	serve = {
 		p1 = true,
@@ -76,14 +73,10 @@ function love.draw()
 
 	love.graphics.setFont(smallFont)
 
-	-- Paddle 1 LEFT
-	love.graphics.rectangle("fill", 10, paddle.left, 5, PADDLE_HEIGHT)
+	leftPaddle:render()
+	rightPaddle:render()
 
-	-- Paddle 2 RIGHT
-	love.graphics.rectangle("fill", VIRTUAL_WIDTH - 15, paddle.right, 5, PADDLE_HEIGHT)
-
-	-- BALL
-	love.graphics.rectangle("fill", ball.x, ball.y, 4, 4)
+  ball:render()
 
 	push:finish()
 end
@@ -97,30 +90,31 @@ function love.keypressed(key)
 			gameState = "serve"
 		else
 			gameState = "play"
-			ball.x = VIRTUAL_WIDTH / 2 - 2
-			ball.y = VIRTUAL_HEIGHT / 2 - 2
-			BALL_DX = math.random(2) == 1 and 100 or -100
-			BALL_DY = math.random(-50, 50) * 1.5
+      ball:reset()
 		end
 	end
 end
 
 function love.update(dt)
 	if love.keyboard.isDown("up") then
-		paddle.right = math.max(0, paddle.right - PADDLE_SPEED * dt)
-	end
-	if love.keyboard.isDown("down") then
-		paddle.right = math.min(VIRTUAL_HEIGHT - PADDLE_HEIGHT, paddle.right + PADDLE_SPEED * dt)
+		rightPaddle.dy = -PADDLE_SPEED
+	elseif love.keyboard.isDown("down") then
+		rightPaddle.dy = PADDLE_SPEED
+	else
+		rightPaddle.dy = 0
 	end
 	if love.keyboard.isDown("w") then
-		paddle.left = math.max(0, paddle.left - PADDLE_SPEED * dt)
-	end
-	if love.keyboard.isDown("s") then
-		paddle.left = math.min(VIRTUAL_HEIGHT - PADDLE_HEIGHT, paddle.left + PADDLE_SPEED * dt)
+		leftPaddle.dy = -PADDLE_SPEED
+	elseif love.keyboard.isDown("s") then
+		leftPaddle.dy = PADDLE_SPEED
+	else
+		leftPaddle.dy = 0
 	end
 
 	if gameState == "play" then
-		ball.x = ball.x + BALL_DX * dt
-		ball.y = ball.y + BALL_DY * dt
+    ball:update(dt)
 	end
+
+	leftPaddle:update(dt)
+	rightPaddle:update(dt)
 end

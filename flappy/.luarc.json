@@ -1,0 +1,7 @@
+{
+  "Lua.workspace.library": ["~/.local/share/love2d/library"],
+  "Lua.diagnostics.globals": ["love"],
+    "diagnostics.disable": [
+        "lowercase-global"
+    ]
+}
